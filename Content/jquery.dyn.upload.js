@@ -9,10 +9,12 @@
                 folder: 'def',
                 subfolder: 'subdef',
                 allowUpload: false,
-                allowDelete: false
+                allowDelete: false,
+                onUploadComplete: null,
+                onDestroyComplete: null
             }, options);
 
-            var $form = '<form id="customFileupload" action="/Upload/CustomUploadHandler.ashx" method="POST" enctype="multipart/form-data"><div class="row fileupload-buttonbar"><div class="span1"><span class="btn btn-success fileinput-button"><i class="icon-plus icon-white"></i><span>Anexar</span><input type="file" name="files[]"></span></div><div class="span5"><table class="table" style="width: 300px;"><tbody class="files" data-toggle="modal-gallery" data-target="#modal-gallery"></tbody></table></div></div></form>';
+            var $form = '<form id="customFileupload" action="/Upload/CustomUploadHandler.ashx" method="POST" enctype="multipart/form-data"><div class="row-fluid fileupload-buttonbar"><div class="span2 btnAnexar"><span class="btn-mini btn-success fileinput-button"><i class="icon-plus icon-white"></i><span>Anexar</span><input type="file" name="files[]"></span></div><div class="span10"><table class="table"><tbody class="files" data-toggle="modal-gallery" data-target="#modal-gallery"></tbody></table></div></div></form>';
             this.append($form);
 
             var e = this.find('#customFileupload');
@@ -21,7 +23,8 @@
             $(e).fileupload();
 
             $(e).fileupload('option', {
-                maxFileSize: 1,
+                acceptFileTypes: /(.|\/)(gif|jpe?g|png|pdf|xlsx?|docx?|rar|zip|txt)$/i,
+                maxFileSize: 5120000,
                 maxNumberOfFiles: 1,
                 autoUpload: true,
                 formData: {
@@ -31,22 +34,34 @@
             });
 
             if (!options.allowUpload) {
-                this.find('.span1').hide();
+                $(this).find('.btnAnexar').hide();
             }
 
-            $(e).bind('fileuploadstopped', function (e) {
-                this.find('.span1').hide();
+            $(e).bind('fileuploadstopped', function (r) {
+                $(this).find('.btnAnexar').hide();
+
+                var $filename = $(e).find('.name a').attr('title');
+
+                if (typeof options.onUploadComplete == 'function') {
+                    options.onUploadComplete.call(this, $filename);
+                }
             })
 
-            $(e).bind('fileuploaddestroyed', function (e) {
+            $(e).bind('fileuploaddestroyed', function (r) {
                 if (options.allowUpload) {
-                    this.find('.span1').show();
+                    $(this).find('.btnAnexar').show();
+                }
+
+                var $filename = $(e).find('.name a').attr('title');
+
+                if (typeof options.onDestroyComplete == 'function') {
+                    options.onDestroyComplete.call(this, $filename);
                 }
             });
 
             $(e).bind('fileuploadcompleted', function (e, data) {
                 if (!options.allowDelete) {
-                    this.find('.delete').hide();
+                    $(this).find('.delete').hide();
                 }
             })
 
@@ -60,7 +75,7 @@
                         $(that).fileupload('option', 'maxNumberOfFiles', 1 - result.length);
                         $(that).fileupload('option', 'done').call(that, null, { result: result });
 
-                        $(that).find('.span1').hide();
+                        $(that).find('.btnAnexar').hide();
                     }
                 });
             });

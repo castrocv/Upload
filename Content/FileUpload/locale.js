@@ -12,8 +12,8 @@
 window.locale = {
     "fileupload": {
         "errors": {
-            "maxFileSize": "O arquivo muito grande",
-            "minFileSize": "O arquivo muito pequeno",
+            "maxFileSize": "Arquivo muito grande",
+            "minFileSize": "Arquivo muito pequeno",
             "acceptFileTypes": "Tipo de arquivo nao permitido",
             "maxNumberOfFiles": "Quantidade de anexos permitida excedida",
             "uploadedBytes": "Dados enviados extrapola tamanho do arquivo",

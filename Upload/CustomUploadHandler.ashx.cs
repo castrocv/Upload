@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Script.Serialization;
+using System.Text;
 
 namespace jQuery_File_Upload.MVC3.Upload
 {
@@ -11,6 +12,7 @@ namespace jQuery_File_Upload.MVC3.Upload
     /// </summary>
     public class CustomUploadHandler : IHttpHandler
     {
+        private readonly int MAX_SIZE_ALLOWED = 5120000; // meow for IE
         private readonly JavaScriptSerializer js;
 
         private string StorageRoot
@@ -56,26 +58,14 @@ namespace jQuery_File_Upload.MVC3.Upload
 
         public void ProcessRequest(HttpContext context)
         {
-            try
-            {
-                var folder = context.Request["folder"] ?? "";
-                var subfolder = context.Request["subfolder"] ?? "";
-                StorageFolder = Path.Combine(folder, subfolder);
+            var folder = context.Request["folder"] ?? "";
+            var subfolder = context.Request["subfolder"] ?? "";
+            StorageFolder = Path.Combine(folder, subfolder);
 
-                context.Response.AddHeader("Pragma", "no-cache");
-                context.Response.AddHeader("Cache-Control", "private, no-cache");
+            context.Response.AddHeader("Pragma", "no-cache");
+            context.Response.AddHeader("Cache-Control", "private, no-cache");
 
-                HandleMethod(context);
-            }
-            catch (System.Exception)
-            {
-                // @@EMAGNO - tratar exceções como mensagem amigavel
-
-                context.Response.AddHeader("Pragma", "no-cache");
-                context.Response.AddHeader("Cache-Control", "private, no-cache");
-                context.Response.ClearHeaders();
-                context.Response.StatusCode = 405;
-            }
+            HandleMethod(context);
         }
 
         // Handle request based on method
@@ -174,14 +164,21 @@ namespace jQuery_File_Upload.MVC3.Upload
             for (int i = 0; i < context.Request.Files.Count; i++)
             {
                 var file = context.Request.Files[i];
+                string fullName = Normalize(Path.GetFileName(file.FileName));
+                var fullPath = StorageFolder + fullName;
 
-                var fullPath = StorageFolder + Path.GetFileName(file.FileName);
+                string error = null;
 
-                //@@EMAGNO - normalizar nome do arquivo: remover acentuação e caracteres especiais
-                file.SaveAs(fullPath);
+                if (file.ContentLength > MAX_SIZE_ALLOWED)
+                {
+                    error = "Arquivo muito grande";
+                }
+                else
+                {
+                    file.SaveAs(fullPath);
+                }
 
-                string fullName = Path.GetFileName(file.FileName);
-                statuses.Add(new CustomFilesStatus(fullName, file.ContentLength, fullPath));
+                statuses.Add(new CustomFilesStatus(fullName, file.ContentLength, fullPath, error));
             }
         }
 
@@ -244,5 +241,14 @@ namespace jQuery_File_Upload.MVC3.Upload
             context.Response.ContentType = "application/json";
         }
 
+        private string Normalize(string input)
+        {
+            string normalized = input.Normalize(NormalizationForm.FormKD);
+            Encoding removal = Encoding.GetEncoding(Encoding.ASCII.CodePage,
+                                                    new EncoderReplacementFallback(""),
+                                                    new DecoderReplacementFallback(""));
+            byte[] bytes = removal.GetBytes(normalized);
+            return Encoding.ASCII.GetString(bytes);
+        }
     }
 }

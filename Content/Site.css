@@ -308,3 +308,8 @@ div#title {
     max-width: 80px;
     max-height: 80px;
 }
+
+.files .name {
+    max-width: 200px;
+    word-wrap: break-word;
+}

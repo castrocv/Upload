@@ -24,30 +24,47 @@ namespace jQuery_File_Upload.MVC3.Upload
 
         public CustomFilesStatus(FileInfo fileInfo, string folder, string subfolder)
         {
-            SetValues(fileInfo.Name, (int)fileInfo.Length, fileInfo.FullName, folder, subfolder);
+            SetValues(fileInfo.Name, (int)fileInfo.Length, fileInfo.FullName, folder, subfolder, error);
         }
 
-        public CustomFilesStatus(string fileName, int fileLength, string fullPath) { SetValues(fileName, fileLength, fullPath); }
-
-        private void SetValues(string fileName, int fileLength, string fullPath, string folder = null, string subfolder = null)
+        public CustomFilesStatus(string fileName, int fileLength, string fullPath, string error)
         {
-            name = fileName;
-            type = "image/png";
-            size = fileLength;
-            progress = "1.0";
-            url = HandlerPath + "CustomUploadHandler.ashx?f=" + fileName
+            SetValues(fileName, fileLength, fullPath, null, null, error);
+        }
+
+        private void SetValues(string fileName, int fileLength, string fullPath, string folder = null, string subfolder = null, string error = null)
+        {
+            this.name = fileName;
+            this.type = "image/png";
+            this.size = fileLength;
+            this.progress = "1.0";
+            this.url = HandlerPath + "CustomUploadHandler.ashx?f=" + fileName
                 + (!string.IsNullOrWhiteSpace(fullPath) ? "&fp=" + fullPath : "");
-                
-            delete_url = HandlerPath + "CustomUploadHandler.ashx?f=" + fileName
+
+            this.delete_url = HandlerPath + "CustomUploadHandler.ashx?f=" + fileName
                 + (!string.IsNullOrWhiteSpace(fullPath) ? "&fp=" + fullPath : "");
 
-            delete_type = "DELETE";
+            this.delete_type = "DELETE";
 
-            var ext = Path.GetExtension(fullPath);
+            if (!string.IsNullOrWhiteSpace(error))
+            {
+                this.error = error;
+                this.thumbnail_url = "/Content/img/generalFile.png";
+            }
+            else
+            {
+                var ext = Path.GetExtension(fullPath);
+                var fileSize = ConvertBytesToMegabytes(new FileInfo(fullPath).Length);
 
-            var fileSize = ConvertBytesToMegabytes(new FileInfo(fullPath).Length);
-            if (fileSize > 3 || !IsImage(ext)) thumbnail_url = "/Content/img/generalFile.png";
-            else thumbnail_url = @"data:image/png;base64," + EncodeFile(fullPath);
+                if (fileSize > 3 || !IsImage(ext))
+                {
+                    this.thumbnail_url = "/Content/img/generalFile.png";
+                }
+                else
+                {
+                    this.thumbnail_url = @"data:image/png;base64," + EncodeFile(fullPath);
+                }
+            }
         }
 
         private bool IsImage(string ext)

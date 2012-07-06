@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title></title>
-    <!--<link href="Content/Site.css" rel="stylesheet" type="text/css" />-->
+    <link href="Content/Site.css" rel="stylesheet" type="text/css" />
     <!--INICIO: Dependencias para upload-->
     <script src="Content/jQuery/jquery-1.7.2.min.js" type="text/javascript"></script>
     <script src="Content/jQuery/jquery-ui-1.8.21.custom.min.js" type="text/javascript"></script>
@@ -22,10 +22,55 @@
     <!--FIM: Dependencias para upload-->
     <script type="text/javascript">
         $(function () {
-            $('#up1').upload({ folder: '101', subfolder: '1', allowUpload: true, allowDelete: true });
-            $('#up2').upload({ folder: '101', subfolder: '2', allowUpload: true, allowDelete: true });
-            $('#up3').upload({ folder: '101', subfolder: '3', allowDelete: true });
-            $('#up4').upload({ folder: '101', subfolder: '4', allowDelete: true });
+            'use strict';
+
+            var uploadCompleto = function (idSinistro, idDocumento, filename) {
+                alert("UPLOAD = Sinistro: " + idSinistro + ", Documento: " + idDocumento + ", Anexo: " + filename);
+            };
+
+            var anexoRemovido = function (idSinistro, idDocumento, filename) {
+                alert("DELETE = Sinistro: " + idSinistro + ", Documento: " + idDocumento + ", Anexo: " + filename);
+            };
+
+            $('#up1').upload({
+                folder: '101',
+                subfolder: '1',
+                allowUpload: true,
+                allowDelete: true,
+                onUploadComplete: function (filename) {
+                    uploadCompleto('101', '1', filename);
+                },
+                onDestroyComplete: function (filename) {
+                    anexoRemovido('101', '1', filename);
+                }
+            });
+
+            $('#up2').upload({ folder: '101', subfolder: '2', allowUpload: true, allowDelete: true,
+                onUploadComplete: function (filename) {
+                    uploadCompleto('101', '2', filename);
+                },
+                onDestroyComplete: function (filename) {
+                    anexoRemovido('101', '2', filename);
+                }
+            });
+
+            $('#up3').upload({ folder: '101', subfolder: '3', allowUpload: true, allowDelete: true,
+                onUploadComplete: function (filename) {
+                    uploadCompleto('101', '3', filename);
+                },
+                onDestroyComplete: function (filename) {
+                    anexoRemovido('101', '3', filename);
+                }
+            });
+
+            $('#up4').upload({ folder: '101', subfolder: '4', allowUpload: true, allowDelete: true,
+                onUploadComplete: function (filename) {
+                    uploadCompleto('101', '4', filename);
+                },
+                onDestroyComplete: function (filename) {
+                    anexoRemovido('101', '4', filename);
+                }
+            });
         });
     </script>
 </head>
@@ -42,45 +87,50 @@
     <script id="template-upload" type="text/x-tmpl">
     {% for (var i=0, file; file=o.files[i]; i++) { %}
         <tr class="template-upload fade">
-            <td class="name"><span>{%=file.name%}</span></td>
             {% if (file.error) { %}
+                <td class="name" colspan="2"><span>{%=file.name%}</span></td>
                 <td class="error" colspan="2"><span class="label label-important">{%=locale.fileupload.error%}</span> {%=locale.fileupload.errors[file.error] || file.error%}</td>
+                <td class="cancel">
+                    <button class="btn-mini btn-warning">
+                        <i class="icon-ban-circle icon-white"></i>
+                        <span>{%=locale.fileupload.cancel%}</span>
+                    </button>
+                </td>
             {% } else if (o.files.valid && !i) { %}
-                <td>
+                <td width="50%">
                     <div class="progress progress-success progress-striped active"><div class="bar" style="width:0%;"></div></div>
                 </td>
             {% } else { %}
-                <td colspan="2"></td>
+                <td class="name"><span>{%=file.name%}</span></td>
             {% } %}
-            <td class="cancel">{% if (!i) { %}
-                <button class="btn btn-warning">
-                    <i class="icon-ban-circle icon-white"></i>
-                    <span>{%=locale.fileupload.cancel%}</span>
-                </button>
-            {% } %}</td>
         </tr>
     {% } %}
     </script>
     <script id="template-download" type="text/x-tmpl">
     {% for (var i=0, file; file=o.files[i]; i++) { %}
         <tr class="template-download fade">
+            <td class="delete">
+                    <button class="btn-mini btn-danger" data-type="{%=file.delete_type%}" data-url="{%=file.delete_url%}">
+                        <i class="icon-trash icon-white"></i>
+                        <span>{%=locale.fileupload.destroy%}</span>
+                    </button>
+                </td>
             {% if (file.error) { %}
-                <td></td>
                 <td class="name"><span>{%=file.name%}</span></td>
                 <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
                 <td class="error" colspan="2"><span class="label label-important">{%=locale.fileupload.error%}</span> {%=locale.fileupload.errors[file.error] || file.error%}</td>
             {% } else { %}
-                <td class="name">
+                <td class="delete">
+                    <button class="btn-mini btn-danger" data-type="{%=file.delete_type%}" data-url="{%=file.delete_url%}">
+                        <i class="icon-trash icon-white"></i>
+                        <span>{%=locale.fileupload.destroy%}</span>
+                    </button>
+                </td>
+                <td colspan="3" class="name">
                     <a href="{%=file.url%}" title="{%=file.name%}" rel="{%=file.thumbnail_url&&'gallery'%}" download="{%=file.name%}">{%=file.name%}</a>
                 </td>
-                <td colspan="2"></td>
             {% } %}
-            <td class="delete">
-                <button class="btn btn-danger" data-type="{%=file.delete_type%}" data-url="{%=file.delete_url%}">
-                    <i class="icon-trash icon-white"></i>
-                    <span>{%=locale.fileupload.destroy%}</span>
-                </button>
-            </td>
+            
         </tr>
     {% } %}
     </script>
