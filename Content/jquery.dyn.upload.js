@@ -45,7 +45,7 @@
                 if (typeof options.onUploadComplete == 'function') {
                     options.onUploadComplete.call(this, $filename);
                 }
-            })
+            });
 
             $(e).bind('fileuploaddestroyed', function (r) {
                 if (options.allowUpload) {
@@ -63,7 +63,7 @@
                 if (!options.allowDelete) {
                     $(this).find('.delete').hide();
                 }
-            })
+            });
 
             $(e).each(function () {
                 var that = this;
