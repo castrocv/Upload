@@ -29,7 +29,7 @@
             };
 
             var anexoRemovido = function (idSinistro, idDocumento, filename) {
-                alert("DELETE = Sinistro: " + idSinistro + ", Documento: " + idDocumento + ", Anexo: " + filename);
+                alert("DELETE = Sinistro: " + idSinistro + ", Documento: " + idDocumento);
             };
 
             $('#up1').upload({
@@ -120,12 +120,6 @@
                 <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
                 <td class="error" colspan="2"><span class="label label-important">{%=locale.fileupload.error%}</span> {%=locale.fileupload.errors[file.error] || file.error%}</td>
             {% } else { %}
-                <td class="delete">
-                    <button class="btn-mini btn-danger" data-type="{%=file.delete_type%}" data-url="{%=file.delete_url%}">
-                        <i class="icon-trash icon-white"></i>
-                        <span>{%=locale.fileupload.destroy%}</span>
-                    </button>
-                </td>
                 <td colspan="3" class="name">
                     <a href="{%=file.url%}" title="{%=file.name%}" rel="{%=file.thumbnail_url&&'gallery'%}" download="{%=file.name%}">{%=file.name%}</a>
                 </td>

@@ -14,7 +14,7 @@
                 onDestroyComplete: null
             }, options);
 
-            var $form = '<form id="customFileupload" action="/Upload/CustomUploadHandler.ashx" method="POST" enctype="multipart/form-data"><div class="row-fluid fileupload-buttonbar"><div class="span2 btnAnexar"><span class="btn-mini btn-success fileinput-button"><i class="icon-plus icon-white"></i><span>Anexar</span><input type="file" name="files[]"></span></div><div class="span10"><table class="table"><tbody class="files" data-toggle="modal-gallery" data-target="#modal-gallery"></tbody></table></div></div></form>';
+            var $form = '<form id="customFileupload" action="../Upload/CustomUploadHandler.ashx" method="POST" enctype="multipart/form-data"><div class="row-fluid fileupload-buttonbar"><div class="span2 btnAnexar"><span class="btn-mini btn-success fileinput-button"><i class="icon-plus icon-white"></i><span>Anexar</span><input type="file" name="files[]"></span></div><div class="span10"><table class="table"><tbody class="files" data-toggle="modal-gallery" data-target="#modal-gallery"></tbody></table></div></div></form>';
             this.append($form);
 
             var e = this.find('#customFileupload');
@@ -42,7 +42,7 @@
 
                 var $filename = $(e).find('.name a').attr('title');
 
-                if (typeof options.onUploadComplete == 'function') {
+                if (typeof options.onUploadComplete == 'function' && $filename != undefined) {
                     options.onUploadComplete.call(this, $filename);
                 }
             });
@@ -52,10 +52,8 @@
                     $(this).find('.btnAnexar').show();
                 }
 
-                var $filename = $(e).find('.name a').attr('title');
-
                 if (typeof options.onDestroyComplete == 'function') {
-                    options.onDestroyComplete.call(this, $filename);
+                    options.onDestroyComplete.call(this);
                 }
             });
 
@@ -79,7 +77,6 @@
                     }
                 });
             });
-
         }
     };
 
